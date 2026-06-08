@@ -44,7 +44,7 @@ export default async function QuizLeaderboardPage({
             {quiz.section && <Badge variant="secondary">{quiz.section}</Badge>}
             <Badge variant="outline">Top {quiz.top_n_for_bonus}</Badge>
           </div>
-          <h1 className="mt-1 text-2xl font-bold">{quiz.title}</h1>
+          <h1 className="mt-1 text-2xl font-semibold">{quiz.title}</h1>
           <p className="text-sm text-muted-foreground">
             Xếp theo % đúng cao nhất, rồi đến thời gian nhanh nhất. Cập nhật theo
             thời gian thực.

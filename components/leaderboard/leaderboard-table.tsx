@@ -133,19 +133,19 @@ export function LeaderboardTable({
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1)
     return (
-      <span className="flex items-center gap-1 font-bold text-yellow-400">
+      <span className="flex items-center gap-1 font-semibold text-amber-500">
         <Crown className="h-4 w-4" /> 1
       </span>
     );
   if (rank === 2)
     return (
-      <span className="flex items-center gap-1 font-bold text-zinc-300">
+      <span className="flex items-center gap-1 font-semibold text-zinc-500">
         <Medal className="h-4 w-4" /> 2
       </span>
     );
   if (rank === 3)
     return (
-      <span className="flex items-center gap-1 font-bold text-amber-600">
+      <span className="flex items-center gap-1 font-semibold text-amber-700">
         <Medal className="h-4 w-4" /> 3
       </span>
     );

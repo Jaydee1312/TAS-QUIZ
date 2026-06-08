@@ -29,7 +29,7 @@ export default async function AdminQuizzesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Quản lý bài trắc nghiệm</h1>
+        <h1 className="text-2xl font-semibold">Quản lý bài trắc nghiệm</h1>
         <Button asChild>
           <Link href="/admin/quizzes/new" className="gap-2">
             <Plus className="h-4 w-4" /> Tạo bài mới

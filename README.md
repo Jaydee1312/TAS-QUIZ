@@ -17,6 +17,13 @@ nhập Google, và bảng xếp hạng realtime cho từng bài.
 - 👤 **Hồ sơ cá nhân**: tổng điểm, lịch sử bài làm, lịch sử điểm
 - 🛠️ **Admin panel**: tạo / sửa / xóa bài, cấu hình làm lại, công bố, quản lý
   người dùng + điều chỉnh điểm thủ công
+- 🛡️ **Quản lý admin**: super admin (email trong `ADMIN_EMAILS`) có thể cấp /
+  gỡ quyền admin cho người khác qua giao diện — người được cấp chỉ cần đăng
+  nhập Google đúng email là có quyền tạo bài
+
+> 🎨 Giao diện theo design system phong cách **Apple** (xem `DESIGN.md`):
+> light-dominant, một màu nhấn Action Blue `#0066cc`, nút bo tròn dạng pill,
+> viền hairline, không đổ bóng lên chrome, chữ body 17px.
 
 ## 🧱 Tech Stack
 
@@ -42,7 +49,8 @@ Vào **SQL Editor** của Supabase và chạy lần lượt:
 
 1. `supabase/migrations/0001_initial_schema.sql`
 2. `supabase/migrations/0002_rls_policies.sql`
-3. (tùy chọn) `supabase/seed.sql` — thêm 2 bài mẫu để test ngay.
+3. `supabase/migrations/0003_admin_management.sql`
+4. (tùy chọn) `supabase/seed.sql` — thêm 2 bài mẫu để test ngay.
 
 ### 3. Bật Realtime cho leaderboard
 

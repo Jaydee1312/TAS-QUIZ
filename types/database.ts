@@ -141,6 +141,20 @@ interface PointsHistoryInsert {
   created_at?: string;
 }
 
+// ---- admin_allowlist ----
+interface AdminAllowlistRow {
+  email: string;
+  added_by: string | null;
+  note: string | null;
+  created_at: string;
+}
+interface AdminAllowlistInsert {
+  email: string;
+  added_by?: string | null;
+  note?: string | null;
+  created_at?: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -172,6 +186,12 @@ export interface Database {
         Row: PointsHistoryRow;
         Insert: PointsHistoryInsert;
         Update: Partial<PointsHistoryInsert>;
+        Relationships: [];
+      };
+      admin_allowlist: {
+        Row: AdminAllowlistRow;
+        Insert: AdminAllowlistInsert;
+        Update: Partial<AdminAllowlistInsert>;
         Relationships: [];
       };
     };

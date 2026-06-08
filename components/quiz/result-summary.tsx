@@ -31,21 +31,16 @@ export function ResultSummary({
   return (
     <div className="space-y-4">
       <Card className="overflow-hidden">
-        <div
-          className={cn(
-            "h-1.5 w-full",
-            passed ? "bg-primary" : "bg-amber-500"
-          )}
-        />
+        <div className={cn("h-1.5 w-full", passed ? "bg-primary" : "bg-amber-500")} />
         <CardContent className="flex flex-col items-center gap-2 py-8 text-center">
           <p className="text-sm text-muted-foreground">Kết quả của bạn</p>
           <div className="text-5xl font-extrabold">
-            <span className={passed ? "text-primary" : "text-amber-400"}>
+            <span className={passed ? "text-primary" : "text-amber-600"}>
               {score}
             </span>
             <span className="text-muted-foreground">/{total}</span>
           </div>
-          <div className="text-2xl font-bold">{percentage}%</div>
+          <div className="text-2xl font-semibold">{percentage}%</div>
           <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="h-4 w-4" /> {formatDuration(timeTakenSeconds)}

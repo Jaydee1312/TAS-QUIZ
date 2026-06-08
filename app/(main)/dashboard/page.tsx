@@ -62,7 +62,7 @@ export default async function DashboardPage() {
             <Zap className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">
+            <div className="text-3xl font-semibold text-primary">
               {user.total_points}
             </div>
           </CardContent>
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
             <Trophy className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">#{overallRank}</div>
+            <div className="text-3xl font-semibold">#{overallRank}</div>
           </CardContent>
         </Card>
         <Card>
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
             <BookOpen className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{bestByQuiz.size}</div>
+            <div className="text-3xl font-semibold">{bestByQuiz.size}</div>
           </CardContent>
         </Card>
       </div>
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
       {/* Header + admin button */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Bài trắc nghiệm</h1>
+          <h1 className="text-2xl font-semibold">Bài trắc nghiệm</h1>
           <p className="text-sm text-muted-foreground">
             Chọn một bài để bắt đầu làm và tích lũy điểm.
           </p>

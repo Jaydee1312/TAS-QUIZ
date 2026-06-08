@@ -34,7 +34,7 @@ export default async function EditQuizPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Sửa bài trắc nghiệm</h1>
+        <h1 className="text-2xl font-semibold">Sửa bài trắc nghiệm</h1>
         <p className="text-sm text-muted-foreground">{quiz.title}</p>
       </div>
       <QuizForm quiz={quiz} questions={questions} />
