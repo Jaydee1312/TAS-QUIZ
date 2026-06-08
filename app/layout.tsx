@@ -17,10 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="vi">
+      <body className={`${inter.variable} antialiased`}>
         {children}
-        <Toaster theme="dark" position="top-center" richColors />
+        <Toaster theme="light" position="top-center" richColors />
       </body>
     </html>
   );

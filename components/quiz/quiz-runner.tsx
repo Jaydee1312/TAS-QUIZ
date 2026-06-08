@@ -92,7 +92,7 @@ export function QuizRunner({ quiz, questions, attemptNumber }: QuizRunnerProps) 
             {quiz.section && (
               <p className="text-sm text-primary">{quiz.section}</p>
             )}
-            <h1 className="text-xl font-bold">{quiz.title}</h1>
+            <h1 className="text-xl font-semibold">{quiz.title}</h1>
           </div>
           <QuizTimer
             limitSeconds={limitSeconds}

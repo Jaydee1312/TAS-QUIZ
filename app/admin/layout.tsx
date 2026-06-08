@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
-import { getCurrentUser } from "@/lib/auth";
+import { AdminNav } from "@/components/layout/admin-nav";
+import { getCurrentUser, isSuperAdmin } from "@/lib/auth";
 
 export default async function AdminLayout({
   children,
@@ -14,6 +15,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen">
       <Header user={user} />
+      <AdminNav isSuperAdmin={isSuperAdmin(user.email)} />
       <div className="container py-8">{children}</div>
     </div>
   );

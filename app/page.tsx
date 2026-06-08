@@ -9,51 +9,52 @@ export default async function LandingPage() {
   if (user) redirect("/dashboard");
 
   return (
-    <main className="bg-grid relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background to-primary/5" />
-
-      <div className="mx-auto max-w-3xl text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary">
-          <Zap className="h-4 w-4" />
-          TAS GLOBAL
+    <main>
+      {/* Hero tile — light canvas */}
+      <section className="flex flex-col items-center justify-center px-6 pb-20 pt-28 text-center">
+        <div className="mx-auto max-w-3xl">
+          <p className="mb-4 text-[19px] font-semibold text-primary">
+            TAS GLOBAL
+          </p>
+          <h1 className="text-balance text-5xl font-semibold leading-[1.05] tracking-tight-apple sm:text-6xl">
+            Bài kiểm tra trắc nghiệm,
+            <br className="hidden sm:block" /> nâng tầm chuyên nghiệp.
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-balance text-[21px] font-normal leading-snug text-muted-foreground">
+            Làm bài, nhận điểm tức thì, tích lũy điểm thưởng và tranh hạng trên
+            bảng xếp hạng realtime của từng bài.
+          </p>
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link href="/login">Bắt đầu ngay</Link>
+            </Button>
+            <Button asChild size="lg" variant="link" className="text-[17px]">
+              <Link href="/login">Đăng nhập với Google ›</Link>
+            </Button>
+          </div>
         </div>
+      </section>
 
-        <h1 className="text-balance bg-gradient-to-r from-primary to-accent bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-6xl">
-          TAS GLOBAL QUIZ
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-xl text-balance text-lg text-muted-foreground">
-          Làm bài kiểm tra trắc nghiệm, nhận điểm ngay lập tức, tích lũy điểm
-          thưởng và tranh hạng trên bảng xếp hạng của từng bài.
-        </p>
-
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href="/login">Bắt đầu ngay</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-            <Link href="/login">Đăng nhập với Google</Link>
-          </Button>
-        </div>
-
-        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+      {/* Feature tile — parchment canvas (color change is the divider) */}
+      <section className="bg-surface px-6 py-20">
+        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-3">
           <Feature
-            icon={<CheckCircle2 className="h-6 w-6 text-primary" />}
+            icon={<CheckCircle2 />}
             title="Chấm điểm tức thì"
-            desc="Nộp bài là thấy ngay điểm số và đáp án đúng từng câu."
+            desc="Nộp bài là thấy ngay điểm số và đáp án đúng từng câu kèm giải thích."
           />
           <Feature
-            icon={<Zap className="h-6 w-6 text-primary" />}
+            icon={<Zap />}
             title="Điểm thưởng tích lũy"
-            desc="+10 hoàn thành, +5 đạt ≥80%, +10 lọt top bài."
+            desc="+10 hoàn thành · +5 đạt ngưỡng · +10 lọt top bài kiểm tra."
           />
           <Feature
-            icon={<Trophy className="h-6 w-6 text-primary" />}
-            title="Bảng xếp hạng realtime"
-            desc="Top của mỗi bài cập nhật ngay khi có người nộp."
+            icon={<Trophy />}
+            title="Xếp hạng realtime"
+            desc="Top của mỗi bài cập nhật ngay khi có người nộp bài mới."
           />
         </div>
-      </div>
+      </section>
     </main>
   );
 }
@@ -68,10 +69,14 @@ function Feature({
   desc: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card/50 p-6 text-left">
-      <div className="mb-3">{icon}</div>
-      <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+    <div className="rounded-card border border-hairline bg-background p-7 text-left">
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:h-5 [&_svg]:w-5">
+        {icon}
+      </div>
+      <h3 className="text-[19px] font-semibold tracking-tight-apple">{title}</h3>
+      <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
+        {desc}
+      </p>
     </div>
   );
 }

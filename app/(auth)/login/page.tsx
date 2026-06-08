@@ -14,17 +14,21 @@ export default async function LoginPage({
   if (user) redirect(searchParams.redirectTo ?? "/dashboard");
 
   return (
-    <main className="bg-grid flex min-h-screen items-center justify-center px-6">
+    <main className="flex min-h-screen items-center justify-center bg-surface px-6">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link
             href="/"
-            className="mx-auto mb-2 inline-flex items-center gap-2 text-primary"
+            className="mx-auto mb-3 inline-flex items-center gap-2 font-semibold tracking-tight-apple text-foreground"
           >
-            <Zap className="h-5 w-5" />
-            <span className="font-semibold">TAS GLOBAL</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Zap className="h-4 w-4" />
+            </span>
+            TAS GLOBAL
           </Link>
-          <CardTitle className="text-2xl">Đăng nhập</CardTitle>
+          <CardTitle className="text-[28px] tracking-tight-apple">
+            Đăng nhập
+          </CardTitle>
           <CardDescription>
             Dùng tài khoản Google để vào TAS GLOBAL QUIZ
           </CardDescription>

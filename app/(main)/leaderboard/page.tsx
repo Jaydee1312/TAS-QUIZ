@@ -22,7 +22,7 @@ export default async function LeaderboardListPage() {
       <div className="flex items-center gap-3">
         <Trophy className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold">Bảng xếp hạng</h1>
+          <h1 className="text-2xl font-semibold">Bảng xếp hạng</h1>
           <p className="text-sm text-muted-foreground">
             Chọn một bài để xem top người chơi.
           </p>

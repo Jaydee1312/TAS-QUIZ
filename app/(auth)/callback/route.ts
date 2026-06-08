@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/auth";
+import { isAuthorizedAdminEmail } from "@/lib/auth";
 
 /**
  * OAuth callback của Supabase.
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     // Service client để đảm bảo row tồn tại + set role (bỏ qua RLS).
     const service = createServiceClient();
     const meta = (user.user_metadata ?? {}) as Record<string, string | undefined>;
-    const desiredRole: "admin" | "user" = isAdminEmail(user.email)
+    const desiredRole: "admin" | "user" = (await isAuthorizedAdminEmail(user.email))
       ? "admin"
       : "user";
     const name = meta.full_name ?? meta.name ?? null;

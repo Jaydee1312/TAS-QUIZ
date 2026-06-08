@@ -66,7 +66,7 @@ export default async function ResultPage({
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         {quiz.section && <p className="text-sm text-primary">{quiz.section}</p>}
-        <h1 className="text-2xl font-bold">{quiz.title}</h1>
+        <h1 className="text-2xl font-semibold">{quiz.title}</h1>
         <p className="text-sm text-muted-foreground">
           Lần làm thứ {submission.attempt_number}
           {!submission.is_first_attempt && !quiz.points_on_retake && (
@@ -142,7 +142,7 @@ export default async function ResultPage({
                       key={opt.key}
                       className={cn(
                         "flex items-center gap-3 rounded-lg border border-border p-3 text-sm",
-                        isCorrect && "border-emerald-500/50 bg-emerald-500/10",
+                        isCorrect && "border-success/40 bg-success/10",
                         isUserPick &&
                           !isCorrect &&
                           "border-destructive/50 bg-destructive/10"
@@ -151,7 +151,7 @@ export default async function ResultPage({
                       <span className="font-semibold">{opt.key}.</span>
                       <span className="flex-1">{opt.text}</span>
                       {isCorrect && (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        <CheckCircle2 className="h-4 w-4 text-success" />
                       )}
                       {isUserPick && !isCorrect && (
                         <XCircle className="h-4 w-4 text-destructive" />

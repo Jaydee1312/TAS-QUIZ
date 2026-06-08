@@ -60,7 +60,7 @@ export default async function ProfilePage() {
           </Avatar>
           <div className="flex-1 text-center sm:text-left">
             <div className="flex items-center justify-center gap-2 sm:justify-start">
-              <h1 className="text-xl font-bold">{user.name ?? "Người dùng"}</h1>
+              <h1 className="text-xl font-semibold">{user.name ?? "Người dùng"}</h1>
               {user.role === "admin" && <Badge>Admin</Badge>}
             </div>
             <p className="text-sm text-muted-foreground">{user.email}</p>
