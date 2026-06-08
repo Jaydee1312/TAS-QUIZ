@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { QuizListItem } from "@/components/admin/quiz-list-item";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet } from "lucide-react";
 import type { Quiz } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -28,11 +28,18 @@ export default async function AdminQuizzesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Quản lý bài trắc nghiệm</h1>
-        <Button asChild>
-          <Link href="/admin/quizzes/new" className="gap-2">
-            <Plus className="h-4 w-4" /> Tạo bài mới
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href="/admin/quizzes/import" className="gap-2">
+              <FileSpreadsheet className="h-4 w-4" /> Import Excel
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/admin/quizzes/new" className="gap-2">
+              <Plus className="h-4 w-4" /> Tạo bài mới
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {list.length === 0 ? (

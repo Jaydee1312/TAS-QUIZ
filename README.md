@@ -23,6 +23,9 @@ nhập Google, và bảng xếp hạng realtime cho từng bài.
 - ⚙️ **Mức điểm chỉnh từ admin UI** (`/admin/settings`): đổi số điểm
   hoàn thành / đạt ngưỡng / lọt top ngay trên giao diện, không cần sửa code
   hay deploy lại (lưu ở bảng `app_settings`)
+- 📥 **Import Excel tạo bài hàng loạt** (`/admin/quizzes/import`): tải file
+  mẫu `.xlsx` (2 sheet **Quiz** + **CauHoi**, liên kết qua cột `ma_bai`),
+  điền nội dung rồi tải lên — xem trước + báo lỗi trước khi tạo nhiều bài cùng lúc
 
 > 🎨 Giao diện theo design system phong cách **Apple** (xem `DESIGN.md`):
 > light-dominant, một màu nhấn Action Blue `#0066cc`, nút bo tròn dạng pill,
