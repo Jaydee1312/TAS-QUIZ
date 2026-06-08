@@ -22,19 +22,20 @@ export default async function ProfilePage() {
   const user = (await getCurrentUser())!;
   const supabase = createClient();
 
-  const { data: subRows } = await supabase
-    .from("submissions")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("submitted_at", { ascending: false });
+  const [{ data: subRows }, { data: historyRows }] = await Promise.all([
+    supabase
+      .from("submissions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("submitted_at", { ascending: false }),
+    supabase
+      .from("points_history")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
   const submissions = (subRows ?? []) as Submission[];
-
-  const { data: historyRows } = await supabase
-    .from("points_history")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
   const history = (historyRows ?? []) as PointsHistory[];
 
   // Tên quiz cho hiển thị.
