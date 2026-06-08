@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin", label: "Tổng quan", exact: true },
   { href: "/admin/quizzes", label: "Bài trắc nghiệm" },
   { href: "/admin/users", label: "Người dùng" },
+  { href: "/admin/settings", label: "Điểm thưởng" },
 ];
 
 export function AdminNav({ isSuperAdmin }: { isSuperAdmin: boolean }) {

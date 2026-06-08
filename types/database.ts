@@ -155,6 +155,22 @@ interface AdminAllowlistInsert {
   created_at?: string;
 }
 
+// ---- app_settings ----
+interface AppSettingsRow {
+  id: number;
+  points_completion: number;
+  points_high_score: number;
+  points_top_rank: number;
+  updated_at: string;
+}
+interface AppSettingsInsert {
+  id?: number;
+  points_completion?: number;
+  points_high_score?: number;
+  points_top_rank?: number;
+  updated_at?: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -192,6 +208,12 @@ export interface Database {
         Row: AdminAllowlistRow;
         Insert: AdminAllowlistInsert;
         Update: Partial<AdminAllowlistInsert>;
+        Relationships: [];
+      };
+      app_settings: {
+        Row: AppSettingsRow;
+        Insert: AppSettingsInsert;
+        Update: Partial<AppSettingsInsert>;
         Relationships: [];
       };
     };

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { computeBasePoints, shouldAwardPoints, POINTS } from "@/lib/points";
+import { computeBasePoints, shouldAwardPoints } from "@/lib/points";
 import { reconcileTopRanks } from "@/lib/ranking";
+import { getPointsConfig } from "@/lib/settings";
 import type { Quiz } from "@/types";
 
 export async function POST(
@@ -81,9 +82,10 @@ export async function POST(
   }
   const percentage = Math.round((score / total) * 10000) / 100; // 2 chữ số thập phân
 
-  // 7. Tính điểm thưởng cơ bản.
+  // 7. Tính điểm thưởng cơ bản (mức điểm lấy từ cấu hình admin).
+  const pointsConfig = await getPointsConfig(service);
   const awardPoints = shouldAwardPoints(quiz, isFirstAttempt);
-  const base = computeBasePoints(quiz, percentage, awardPoints);
+  const base = computeBasePoints(quiz, percentage, awardPoints, pointsConfig);
 
   // 8. Ghi submission (points_earned tạm = base, cập nhật sau khi xét top).
   const { data: submission, error: subErr } = await service
@@ -131,13 +133,14 @@ export async function POST(
   const change = await reconcileTopRanks(service, quizId, quiz.top_n_for_bonus, {
     currentUserId: user.id,
     currentSubmissionId: submission.id,
+    pointsPerTop: pointsConfig.topRank,
   });
 
   // 11. Nếu user hiện tại vừa lọt top → cộng vào points_earned của submission.
   let finalPoints = base.total;
   const gainedTop = change.gained.includes(user.id);
   if (gainedTop) {
-    finalPoints += POINTS.TOP_RANK;
+    finalPoints += pointsConfig.topRank;
     await service
       .from("submissions")
       .update({ points_earned: finalPoints })

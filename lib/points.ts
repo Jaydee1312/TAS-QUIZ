@@ -1,9 +1,11 @@
 import type { Quiz } from "@/types";
+import { DEFAULT_POINTS_CONFIG, type PointsConfig } from "@/lib/settings";
 
+/** Mức điểm mặc định (fallback khi chưa có cấu hình). */
 export const POINTS = {
-  COMPLETION: 10,
-  HIGH_SCORE: 5,
-  TOP_RANK: 10,
+  COMPLETION: DEFAULT_POINTS_CONFIG.completion,
+  HIGH_SCORE: DEFAULT_POINTS_CONFIG.highScore,
+  TOP_RANK: DEFAULT_POINTS_CONFIG.topRank,
 } as const;
 
 export interface PointsBreakdownItem {
@@ -22,26 +24,28 @@ export interface ComputedPoints {
  * riêng trong ranking.ts vì cần biết thứ hạng sau khi đã ghi submission).
  *
  * Quy tắc:
- *  - +10 khi hoàn thành bài
- *  - +5  nếu percentage >= pass_threshold (mặc định 80%)
+ *  - +completion khi hoàn thành bài
+ *  - +highScore  nếu percentage >= pass_threshold (mặc định 80%)
  *
- * `awardPoints=false` (vd: lần làm lại mà quiz không cộng điểm) → trả 0.
+ * Mức điểm lấy từ `config` (admin chỉnh được). `awardPoints=false` (vd: lần
+ * làm lại mà quiz không cộng điểm) → trả 0.
  */
 export function computeBasePoints(
   quiz: Pick<Quiz, "pass_threshold">,
   percentage: number,
-  awardPoints: boolean
+  awardPoints: boolean,
+  config: PointsConfig = DEFAULT_POINTS_CONFIG
 ): ComputedPoints {
   if (!awardPoints) return { total: 0, breakdown: [] };
 
   const breakdown: PointsBreakdownItem[] = [
-    { type: "completion", points: POINTS.COMPLETION, label: "Hoàn thành bài" },
+    { type: "completion", points: config.completion, label: "Hoàn thành bài" },
   ];
 
   if (percentage >= quiz.pass_threshold) {
     breakdown.push({
       type: "high_score",
-      points: POINTS.HIGH_SCORE,
+      points: config.highScore,
       label: `Đạt ≥ ${quiz.pass_threshold}%`,
     });
   }
