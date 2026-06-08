@@ -10,14 +10,12 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminQuizzesPage() {
   const supabase = createClient();
-  const { data: quizzes } = await supabase
-    .from("quizzes")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [{ data: quizzes }, { data: qRows }, { data: sRows }] = await Promise.all([
+    supabase.from("quizzes").select("*").order("created_at", { ascending: false }),
+    supabase.from("questions").select("quiz_id"),
+    supabase.from("submissions").select("quiz_id"),
+  ]);
   const list = (quizzes ?? []) as Quiz[];
-
-  const { data: qRows } = await supabase.from("questions").select("quiz_id");
-  const { data: sRows } = await supabase.from("submissions").select("quiz_id");
 
   const qCount = new Map<string, number>();
   for (const r of qRows ?? [])

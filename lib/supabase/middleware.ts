@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
 
 const PROTECTED_PREFIXES = ["/dashboard", "/quiz", "/leaderboard", "/profile", "/admin"];
-const ADMIN_PREFIX = "/admin";
 
 function isProtected(pathname: string) {
   return PROTECTED_PREFIXES.some(
@@ -12,9 +11,10 @@ function isProtected(pathname: string) {
 }
 
 /**
- * Refresh phiên Supabase và bảo vệ route.
+ * Refresh phiên Supabase và bảo vệ route ở mức nhẹ.
  * - Chưa đăng nhập + vào route protected → đẩy về /login
- * - Vào /admin nhưng không phải admin → đẩy về /dashboard
+ * - Việc check role admin để cho layout /admin lo (tránh thêm 1 query DB mỗi
+ *   request trong middleware → giảm độ trễ điều hướng).
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -40,35 +40,18 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  const { pathname } = request.nextUrl;
+
+  // Một lần getUser (vừa refresh token nền, vừa biết đã đăng nhập chưa).
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && isProtected(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectTo", pathname);
     return NextResponse.redirect(url);
-  }
-
-  if (user && pathname === "/admin") {
-    // bỏ qua, để check chi tiết bên dưới (admin/* nói chung)
-  }
-
-  if (user && (pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`))) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
-    }
   }
 
   return response;

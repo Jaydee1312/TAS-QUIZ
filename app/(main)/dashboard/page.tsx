@@ -13,28 +13,25 @@ export default async function DashboardPage() {
   const user = (await getCurrentUser())!;
   const supabase = createClient();
 
-  // Quiz đã publish (admin thấy cả chưa publish nhờ RLS).
-  const { data: quizzes } = await supabase
-    .from("quizzes")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  // Submissions của user để xác định đã hoàn thành + điểm cao nhất.
-  const { data: subs } = await supabase
-    .from("submissions")
-    .select("quiz_id, percentage")
-    .eq("user_id", user.id);
-
-  // Đếm số câu hỏi mỗi quiz.
-  const { data: questionRows } = await supabase
-    .from("questions")
-    .select("quiz_id");
-
-  // Xếp hạng tổng theo total_points.
-  const { count: higher } = await supabase
-    .from("users")
-    .select("*", { count: "exact", head: true })
-    .gt("total_points", user.total_points);
+  // Gộp các truy vấn độc lập chạy song song để giảm độ trễ điều hướng.
+  const [
+    { data: quizzes },
+    { data: subs },
+    { data: questionRows },
+    { count: higher },
+  ] = await Promise.all([
+    // Quiz đã publish (admin thấy cả chưa publish nhờ RLS).
+    supabase.from("quizzes").select("*").order("created_at", { ascending: false }),
+    // Submissions của user để xác định đã hoàn thành + điểm cao nhất.
+    supabase.from("submissions").select("quiz_id, percentage").eq("user_id", user.id),
+    // Đếm số câu hỏi mỗi quiz.
+    supabase.from("questions").select("quiz_id"),
+    // Xếp hạng tổng theo total_points.
+    supabase
+      .from("users")
+      .select("*", { count: "exact", head: true })
+      .gt("total_points", user.total_points),
+  ]);
   const overallRank = (higher ?? 0) + 1;
 
   const bestByQuiz = new Map<string, number>();
