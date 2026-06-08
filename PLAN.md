@@ -383,8 +383,22 @@ npm run dev
 ## 📌 11. Trạng thái hiện tại
 
 - ✅ Đã chốt toàn bộ yêu cầu với user (xem mục 2)
-- ✅ Đã đẩy file `PLAN.md` + `README.md` lên git
-- ⏸️ **CHỜ USER ra lệnh "OK làm đi"** mới bắt đầu code
+- ✅ **ĐÃ CODE XONG** toàn bộ web app theo plan (Next.js 14 + Supabase)
+- ✅ `npm run build` + `npm run lint` pass sạch
+- 🔜 **Việc của user**: tạo Supabase project, chạy migrations, setup Google
+  OAuth, điền `.env.local`, deploy Vercel (xem README mục Setup)
+
+### Đã hoàn thành
+- [x] Config: Next.js, TS, Tailwind, theme dark teal, middleware auth/role
+- [x] Supabase clients (browser/server/service/middleware) + migrations + RLS +
+      RPC (`get_leaderboard`, `adjust_user_points`, `is_admin`) + seed mẫu
+- [x] Google OAuth login + callback (tự set admin theo `ADMIN_EMAILS`)
+- [x] Dashboard, trang làm bài (timer + state), API nộp bài + chấm điểm
+- [x] Logic điểm (`points.ts`) + ranking realtime + edge case mất top
+      (`ranking.ts`)
+- [x] Trang kết quả (đáp án + giải thích + breakdown điểm)
+- [x] Leaderboard realtime, profile + lịch sử điểm
+- [x] Admin: list / tạo / sửa / xóa quiz, quản lý user + chỉnh điểm thủ công
 
 ---
 
