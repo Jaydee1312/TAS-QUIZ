@@ -86,6 +86,8 @@ interface ReconcileOptions {
   /** User vừa nộp bài (để link submission_id khi họ lọt top). */
   currentUserId?: string;
   currentSubmissionId?: string;
+  /** Mức điểm cộng/trừ cho top (admin chỉnh được). Mặc định POINTS.TOP_RANK. */
+  pointsPerTop?: number;
 }
 
 /**
@@ -119,6 +121,8 @@ export async function reconcileTopRanks(
     if (!topSet.has(userId)) lost.push(userId);
   }
 
+  const award = opts.pointsPerTop ?? POINTS.TOP_RANK;
+
   // Ghi points_history + cập nhật total_points (atomic qua RPC).
   for (const userId of gained) {
     // Chỉ link submission_id cho chính user vừa nộp bài.
@@ -128,13 +132,13 @@ export async function reconcileTopRanks(
       user_id: userId,
       submission_id: submissionId,
       type: "top_rank",
-      points: POINTS.TOP_RANK,
+      points: award,
       reason: `Lọt vào top ${topN}`,
       metadata: { quiz_id: quizId },
     });
     await supabase.rpc("adjust_user_points" as never, {
       p_user_id: userId,
-      p_delta: POINTS.TOP_RANK,
+      p_delta: award,
     } as never);
   }
 
@@ -143,13 +147,13 @@ export async function reconcileTopRanks(
       user_id: userId,
       submission_id: null,
       type: "top_rank_lost",
-      points: -POINTS.TOP_RANK,
+      points: -award,
       reason: `Bị đẩy ra khỏi top ${topN}`,
       metadata: { quiz_id: quizId },
     });
     await supabase.rpc("adjust_user_points" as never, {
       p_user_id: userId,
-      p_delta: -POINTS.TOP_RANK,
+      p_delta: -award,
     } as never);
   }
 
