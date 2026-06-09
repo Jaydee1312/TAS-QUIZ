@@ -36,9 +36,9 @@ export function LeaderboardTable({
   const [target, setTarget] = React.useState<LeaderboardRow | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  // Admin / super admin xóa được mọi người, trừ chính mình. User không có nút.
-  function canDelete(row: LeaderboardRow): boolean {
-    return viewerIsAdmin && row.user_id !== currentUserId;
+  // Admin / super admin xóa được mọi người (kể cả chính mình). User không có nút.
+  function canDelete(_row: LeaderboardRow): boolean {
+    return viewerIsAdmin;
   }
 
   async function confirmDelete() {
