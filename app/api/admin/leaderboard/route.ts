@@ -8,8 +8,8 @@ import { reconcileTopRanks } from "@/lib/ranking";
  * DELETE /api/admin/leaderboard — xóa 1 người khỏi bảng xếp hạng của 1 bài.
  * Xóa toàn bộ lượt nộp của họ ở bài đó + hoàn lại điểm bài đó, rồi tính lại top.
  *
- * Phân quyền: admin / super admin xóa được mọi người; KHÔNG ai tự xóa được
- * chính mình; user thường không có quyền xóa.
+ * Phân quyền: admin / super admin xóa được mọi người (kể cả chính mình);
+ * user thường không có quyền xóa.
  */
 export async function DELETE(request: Request) {
   const viewer = await requireAdmin();
@@ -20,12 +20,6 @@ export async function DELETE(request: Request) {
   const targetId = body.user_id;
   if (!quizId || !targetId) {
     return NextResponse.json({ error: "Thiếu thông tin" }, { status: 400 });
-  }
-  if (targetId === viewer.id) {
-    return NextResponse.json(
-      { error: "Không thể tự xóa mình khỏi bảng xếp hạng" },
-      { status: 403 }
-    );
   }
 
   const service = createServiceClient();
