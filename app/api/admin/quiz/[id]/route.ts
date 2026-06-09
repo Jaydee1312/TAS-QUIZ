@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
-import type { QuizOption } from "@/types";
+import { parseAnswerKeys } from "@/lib/utils";
+import type { QuizOption, QuestionType } from "@/types";
 
 interface QuestionInput {
   content: string;
   options: QuizOption[];
   correct_answer: string;
+  question_type?: QuestionType;
   explanation?: string | null;
 }
 
@@ -27,7 +29,11 @@ export async function PUT(
   if (!Array.isArray(questions) || questions.length === 0)
     return NextResponse.json({ error: "Cần ít nhất 1 câu hỏi" }, { status: 400 });
   for (const [i, q] of questions.entries()) {
-    if (!q.options?.some((o) => o.key === q.correct_answer))
+    const keys = parseAnswerKeys(q.correct_answer);
+    if (
+      keys.length === 0 ||
+      keys.some((k) => !q.options?.some((o) => o.key === k))
+    )
       return NextResponse.json(
         { error: `Câu ${i + 1}: đáp án đúng không hợp lệ` },
         { status: 400 }
@@ -60,7 +66,8 @@ export async function PUT(
     content: q.content.trim(),
     order_index: i,
     options: q.options as unknown as object,
-    correct_answer: q.correct_answer,
+    correct_answer: parseAnswerKeys(q.correct_answer).join(","),
+    question_type: q.question_type === "multiple" ? "multiple" : "single",
     explanation: q.explanation ?? null,
   }));
   const { error: qErr } = await service.from("questions").insert(rows);

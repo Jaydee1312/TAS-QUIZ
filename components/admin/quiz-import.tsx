@@ -42,6 +42,8 @@ export function QuizImport() {
       TEMPLATE.questionHeaders,
       ["B1", 1, "2 + 2 = ?", "3", "4", "5", "6", "B", "Cộng cơ bản"],
       ["B1", 2, "Thủ đô Việt Nam?", "Hà Nội", "Huế", "Đà Nẵng", "TP.HCM", "A", ""],
+      // Câu chọn nhiều đáp án: cột dap_an_dung điền nhiều chữ cái, vd "A,C"
+      ["B1", 3, "Số nào là số chẵn?", "2", "3", "4", "5", "A,C", "2 và 4 là số chẵn"],
       ["B2", 1, "HTML là viết tắt của?", "Hyper Text Markup Language", "High Tech...", "Hot Mail", "Home Tool", "A", "Ngôn ngữ đánh dấu siêu văn bản"],
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(qAoa);
@@ -131,7 +133,10 @@ export function QuizImport() {
             File mẫu có 2 sheet: <strong>Quiz</strong> (mỗi dòng 1 bài + cấu hình)
             và <strong>CauHoi</strong> (mỗi dòng 1 câu). Cột{" "}
             <code className="rounded bg-secondary px-1">ma_bai</code> để liên kết
-            câu hỏi với bài.
+            câu hỏi với bài. Câu nhiều đáp án: cột{" "}
+            <code className="rounded bg-secondary px-1">dap_an_dung</code> điền
+            nhiều chữ cái, ví dụ{" "}
+            <code className="rounded bg-secondary px-1">A,C</code>.
           </p>
           <Button variant="outline" onClick={downloadTemplate} className="gap-2">
             <Download className="h-4 w-4" /> Tải file mẫu (.xlsx)

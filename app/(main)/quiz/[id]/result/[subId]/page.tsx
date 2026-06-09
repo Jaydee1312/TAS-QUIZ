@@ -6,7 +6,7 @@ import { ResultSummary } from "@/components/quiz/result-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, answersMatch, parseAnswerKeys } from "@/lib/utils";
 import { CheckCircle2, XCircle, Trophy, RotateCcw, Home } from "lucide-react";
 import type {
   PointsHistory,
@@ -111,7 +111,9 @@ export default async function ResultPage({
         {questions.map((q, i) => {
           const options = q.options as unknown as QuizOption[];
           const userAns = userAnswers[q.id] ?? null;
-          const correct = userAns === q.correct_answer;
+          const correctSet = parseAnswerKeys(q.correct_answer);
+          const userSet = parseAnswerKeys(userAns);
+          const correct = answersMatch(q.correct_answer, userAns);
           return (
             <Card key={q.id}>
               <CardHeader>
@@ -135,8 +137,8 @@ export default async function ResultPage({
               </CardHeader>
               <CardContent className="space-y-2">
                 {options.map((opt) => {
-                  const isCorrect = opt.key === q.correct_answer;
-                  const isUserPick = opt.key === userAns;
+                  const isCorrect = correctSet.includes(opt.key);
+                  const isUserPick = userSet.includes(opt.key);
                   return (
                     <div
                       key={opt.key}

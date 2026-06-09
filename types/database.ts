@@ -75,6 +75,7 @@ interface QuestionsRow {
   order_index: number;
   options: Json;
   correct_answer: string;
+  question_type: string;
   explanation: string | null;
   created_at: string;
 }
@@ -85,6 +86,7 @@ interface QuestionsInsert {
   order_index: number;
   options: Json;
   correct_answer: string;
+  question_type?: string;
   explanation?: string | null;
   created_at?: string;
 }
@@ -161,6 +163,9 @@ interface AppSettingsRow {
   points_completion: number;
   points_high_score: number;
   points_top_rank: number;
+  points_rank_top1: number;
+  points_rank_top3: number;
+  points_rank_top5: number;
   updated_at: string;
 }
 interface AppSettingsInsert {
@@ -168,6 +173,9 @@ interface AppSettingsInsert {
   points_completion?: number;
   points_high_score?: number;
   points_top_rank?: number;
+  points_rank_top1?: number;
+  points_rank_top3?: number;
+  points_rank_top5?: number;
   updated_at?: string;
 }
 

@@ -1,10 +1,11 @@
-import type { QuizOption } from "@/types";
+import type { QuizOption, QuestionType } from "@/types";
 
 /** Cấu trúc 1 bài sau khi parse từ Excel, sẵn sàng gửi lên API tạo bài. */
 export interface ImportQuestion {
   content: string;
   options: QuizOption[];
   correct_answer: string;
+  question_type: QuestionType;
   explanation: string | null;
 }
 
@@ -165,16 +166,23 @@ export function parseQuizWorkbook(
       if (text) options.push({ key: LETTERS[idx], text });
     });
 
-    const correctRaw = field(row, COL.correct).toUpperCase().replace(/[^A-F]/g, "");
-    const correct = correctRaw.charAt(0);
+    // Đáp án đúng: gom tất cả chữ cái A–F (vd "A,C" / "AC" / "A và C" → A,C).
+    const correctKeys = [
+      ...new Set(field(row, COL.correct).toUpperCase().match(/[A-F]/g) ?? []),
+    ].sort();
 
     if (options.length < 2) {
       errors.push(`Câu hỏi dòng ${i + 2}: cần ít nhất 2 lựa chọn`);
       return;
     }
-    if (!options.some((o) => o.key === correct)) {
+    if (correctKeys.length === 0) {
+      errors.push(`Câu hỏi dòng ${i + 2}: thiếu đáp án đúng`);
+      return;
+    }
+    const bad = correctKeys.filter((k) => !options.some((o) => o.key === k));
+    if (bad.length > 0) {
       errors.push(
-        `Câu hỏi dòng ${i + 2}: đáp án đúng "${field(row, COL.correct)}" không khớp lựa chọn nào (A–${LETTERS[options.length - 1]})`
+        `Câu hỏi dòng ${i + 2}: đáp án "${bad.join(",")}" không khớp lựa chọn nào (A–${LETTERS[options.length - 1]})`
       );
       return;
     }
@@ -182,7 +190,8 @@ export function parseQuizWorkbook(
     target.questions.push({
       content,
       options,
-      correct_answer: correct,
+      correct_answer: correctKeys.join(","),
+      question_type: correctKeys.length > 1 ? "multiple" : "single",
       explanation: field(row, COL.explanation) || null,
     });
   });

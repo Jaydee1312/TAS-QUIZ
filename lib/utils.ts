@@ -36,3 +36,23 @@ export function getInitials(name?: string | null, email?: string | null): string
   if (email) return email[0].toUpperCase();
   return "?";
 }
+
+/** Tách chuỗi key đáp án ("A" hoặc "A,C") thành mảng key đã chuẩn hoá. */
+export function parseAnswerKeys(value?: string | null): string[] {
+  if (!value) return [];
+  return value
+    .split(",")
+    .map((s) => s.trim().toUpperCase())
+    .filter(Boolean);
+}
+
+/** So khớp đáp án (đúng khi chọn đúng & đủ tất cả key, không thừa). */
+export function answersMatch(
+  correct?: string | null,
+  user?: string | null
+): boolean {
+  const c = parseAnswerKeys(correct);
+  const u = new Set(parseAnswerKeys(user));
+  if (c.length === 0 || c.length !== u.size) return false;
+  return c.every((k) => u.has(k));
+}

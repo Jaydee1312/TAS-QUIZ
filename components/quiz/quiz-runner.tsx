@@ -15,8 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { QuizTimer } from "@/components/quiz/quiz-timer";
-import { Loader2, ChevronLeft, ChevronRight, Send } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2, ChevronLeft, ChevronRight, Send, Check } from "lucide-react";
+import { cn, parseAnswerKeys } from "@/lib/utils";
 import type { PublicQuestion, Quiz } from "@/types";
 
 interface QuizRunnerProps {
@@ -51,6 +51,20 @@ export function QuizRunner({ quiz, questions, attemptNumber }: QuizRunnerProps) 
 
   function selectAnswer(questionId: string, key: string) {
     setAnswers((prev) => ({ ...prev, [questionId]: key }));
+  }
+
+  // Câu chọn nhiều đáp án: bật/tắt 1 key, lưu dạng "A,C" (đã sắp xếp).
+  function toggleMulti(questionId: string, key: string) {
+    setAnswers((prev) => {
+      const set = new Set(parseAnswerKeys(prev[questionId]));
+      if (set.has(key)) set.delete(key);
+      else set.add(key);
+      const joined = [...set].sort().join(",");
+      const next = { ...prev };
+      if (joined) next[questionId] = joined;
+      else delete next[questionId];
+      return next;
+    });
   }
 
   const doSubmit = React.useCallback(
@@ -118,31 +132,68 @@ export function QuizRunner({ quiz, questions, attemptNumber }: QuizRunnerProps) 
             <span className="mr-2 text-primary">Câu {current + 1}.</span>
             {q.content}
           </CardTitle>
+          {q.question_type === "multiple" && (
+            <p className="text-[13px] text-muted-foreground">
+              (Có thể chọn nhiều đáp án)
+            </p>
+          )}
         </CardHeader>
         <CardContent>
-          <RadioGroup
-            value={answers[q.id] ?? ""}
-            onValueChange={(v) => selectAnswer(q.id, v)}
-            className="gap-3"
-          >
-            {q.options.map((opt) => {
-              const selected = answers[q.id] === opt.key;
-              return (
-                <label
-                  key={opt.key}
-                  htmlFor={`${q.id}-${opt.key}`}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-secondary/60",
-                    selected && "border-primary bg-primary/10"
-                  )}
-                >
-                  <RadioGroupItem value={opt.key} id={`${q.id}-${opt.key}`} />
-                  <span className="font-semibold text-primary">{opt.key}.</span>
-                  <span>{opt.text}</span>
-                </label>
-              );
-            })}
-          </RadioGroup>
+          {q.question_type === "multiple" ? (
+            <div className="grid gap-3">
+              {q.options.map((opt) => {
+                const selected = parseAnswerKeys(answers[q.id]).includes(opt.key);
+                return (
+                  <button
+                    type="button"
+                    key={opt.key}
+                    onClick={() => toggleMulti(q.id, opt.key)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg border border-border p-4 text-left transition-colors hover:bg-secondary/60",
+                      selected && "border-primary bg-primary/10"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border",
+                        selected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input"
+                      )}
+                    >
+                      {selected && <Check className="h-3.5 w-3.5" />}
+                    </span>
+                    <span className="font-semibold text-primary">{opt.key}.</span>
+                    <span>{opt.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <RadioGroup
+              value={answers[q.id] ?? ""}
+              onValueChange={(v) => selectAnswer(q.id, v)}
+              className="gap-3"
+            >
+              {q.options.map((opt) => {
+                const selected = answers[q.id] === opt.key;
+                return (
+                  <label
+                    key={opt.key}
+                    htmlFor={`${q.id}-${opt.key}`}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-secondary/60",
+                      selected && "border-primary bg-primary/10"
+                    )}
+                  >
+                    <RadioGroupItem value={opt.key} id={`${q.id}-${opt.key}`} />
+                    <span className="font-semibold text-primary">{opt.key}.</span>
+                    <span>{opt.text}</span>
+                  </label>
+                );
+              })}
+            </RadioGroup>
+          )}
         </CardContent>
       </Card>
 

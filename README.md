@@ -26,6 +26,13 @@ nhập Google, và bảng xếp hạng realtime cho từng bài.
 - 📥 **Import Excel tạo bài hàng loạt** (`/admin/quizzes/import`): tải file
   mẫu `.xlsx` (2 sheet **Quiz** + **CauHoi**, liên kết qua cột `ma_bai`),
   điền nội dung rồi tải lên — xem trước + báo lỗi trước khi tạo nhiều bài cùng lúc
+- ☑️ **Câu hỏi chọn nhiều đáp án**: bật toggle trong trình tạo câu hỏi (hoặc
+  điền `A,C` ở cột `dap_an_dung` khi import). Chấm đúng khi chọn đủ & đúng tất cả
+- 🥇 **Thưởng theo hạng**: ngoài "trong Top N", cấu hình thêm điểm cho
+  **Hạng 1 / Top 3 / Top 5** (lấy mức cao nhất) tại `/admin/settings`
+- 🧹 **Quản trị bảng xếp hạng**: admin xóa người khỏi bảng xếp hạng 1 bài
+  (hoàn lại điểm bài đó + tính lại top). Admin xóa user thường; **super admin**
+  mới xóa được admin; không ai xóa được super admin
 
 > 🎨 Giao diện theo design system phong cách **Apple** (xem `DESIGN.md`):
 > light-dominant, một màu nhấn Action Blue `#0066cc`, nút bo tròn dạng pill,
@@ -57,7 +64,9 @@ Vào **SQL Editor** của Supabase và chạy lần lượt:
 2. `supabase/migrations/0002_rls_policies.sql`
 3. `supabase/migrations/0003_admin_management.sql`
 4. `supabase/migrations/0004_app_settings.sql`
-5. (tùy chọn) `supabase/seed.sql` — thêm 2 bài mẫu để test ngay.
+5. `supabase/migrations/0005_multiple_choice.sql`
+6. `supabase/migrations/0006_rank_tier_bonus.sql`
+7. (tùy chọn) `supabase/seed.sql` — thêm 2 bài mẫu để test ngay.
 
 ### 3. Bật Realtime cho leaderboard
 

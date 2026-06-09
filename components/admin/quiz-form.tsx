@@ -30,6 +30,7 @@ function blankQuestion(): QuestionDraft {
       { key: "D", text: "" },
     ],
     correct_answer: "",
+    question_type: "single",
     explanation: "",
   };
 }
@@ -73,6 +74,7 @@ export function QuizForm({ quiz, questions }: QuizFormProps) {
           content: q.content,
           options: q.options,
           correct_answer: q.correct_answer,
+          question_type: q.question_type ?? "single",
           explanation: q.explanation ?? "",
         }));
     }
@@ -112,6 +114,7 @@ export function QuizForm({ quiz, questions }: QuizFormProps) {
         content: q.content,
         options: q.options,
         correct_answer: q.correct_answer,
+        question_type: q.question_type ?? "single",
         explanation: q.explanation || null,
       })),
     };

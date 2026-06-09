@@ -1,10 +1,20 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn, formatDuration, formatDate, getInitials } from "@/lib/utils";
-import { Crown, Medal } from "lucide-react";
+import { Crown, Medal, Trash2, Loader2 } from "lucide-react";
 import type { LeaderboardRow } from "@/types";
 
 interface LeaderboardTableProps {
@@ -12,6 +22,10 @@ interface LeaderboardTableProps {
   initialRows: LeaderboardRow[];
   currentUserId: string;
   limit?: number;
+  viewerIsAdmin?: boolean;
+  viewerIsSuper?: boolean;
+  adminUserIds?: string[];
+  superUserIds?: string[];
 }
 
 export function LeaderboardTable({
@@ -19,8 +33,45 @@ export function LeaderboardTable({
   initialRows,
   currentUserId,
   limit = 10,
+  viewerIsAdmin = false,
+  viewerIsSuper = false,
+  adminUserIds = [],
+  superUserIds = [],
 }: LeaderboardTableProps) {
   const [rows, setRows] = React.useState<LeaderboardRow[]>(initialRows);
+  const [target, setTarget] = React.useState<LeaderboardRow | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+
+  const adminSet = React.useMemo(() => new Set(adminUserIds), [adminUserIds]);
+  const superSet = React.useMemo(() => new Set(superUserIds), [superUserIds]);
+
+  function canDelete(row: LeaderboardRow): boolean {
+    if (!viewerIsAdmin) return false;
+    if (superSet.has(row.user_id)) return false; // không xóa super admin
+    if (adminSet.has(row.user_id)) return viewerIsSuper; // admin: chỉ super xóa
+    return true; // user thường: admin nào cũng xóa được
+  }
+
+  async function confirmDelete() {
+    if (!target) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/leaderboard", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quiz_id: quizId, user_id: target.user_id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Xóa thất bại");
+      setRows((prev) => prev.filter((r) => r.user_id !== target.user_id));
+      toast.success("Đã xóa khỏi bảng xếp hạng");
+      setTarget(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Có lỗi xảy ra");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   // Realtime: lắng nghe thay đổi trên submissions của quiz này → refetch.
   React.useEffect(() => {
@@ -75,6 +126,7 @@ export function LeaderboardTable({
             <th className="hidden px-4 py-3 text-right font-medium md:table-cell">
               Ngày nộp
             </th>
+            {viewerIsAdmin && <th className="w-12 px-2 py-3" />}
           </tr>
         </thead>
         <tbody>
@@ -121,11 +173,51 @@ export function LeaderboardTable({
                 <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell">
                   {formatDate(row.submitted_at)}
                 </td>
+                {viewerIsAdmin && (
+                  <td className="px-2 py-3 text-right">
+                    {canDelete(row) && (
+                      <button
+                        onClick={() => setTarget(row)}
+                        aria-label="Xóa khỏi bảng xếp hạng"
+                        className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </td>
+                )}
               </tr>
             );
           })}
         </tbody>
       </table>
+
+      <Dialog open={target !== null} onOpenChange={(o) => !o && setTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xóa khỏi bảng xếp hạng?</DialogTitle>
+            <DialogDescription>
+              Toàn bộ lượt nộp của <strong>{target?.name ?? "người này"}</strong>{" "}
+              ở bài này sẽ bị xóa và điểm thưởng từ bài này được hoàn lại. Không
+              thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTarget(null)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="gap-2"
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
