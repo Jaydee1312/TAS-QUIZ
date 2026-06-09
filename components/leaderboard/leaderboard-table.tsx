@@ -47,6 +47,7 @@ export function LeaderboardTable({
 
   function canDelete(row: LeaderboardRow): boolean {
     if (!viewerIsAdmin) return false;
+    if (row.user_id === currentUserId) return false; // không tự xóa mình
     if (superSet.has(row.user_id)) return false; // không xóa super admin
     if (adminSet.has(row.user_id)) return viewerIsSuper; // admin: chỉ super xóa
     return true; // user thường: admin nào cũng xóa được

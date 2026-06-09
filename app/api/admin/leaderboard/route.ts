@@ -23,6 +23,12 @@ export async function DELETE(request: Request) {
   if (!quizId || !targetId) {
     return NextResponse.json({ error: "Thiếu thông tin" }, { status: 400 });
   }
+  if (targetId === viewer.id) {
+    return NextResponse.json(
+      { error: "Không thể tự xóa mình khỏi bảng xếp hạng" },
+      { status: 403 }
+    );
+  }
 
   const service = createServiceClient();
 
