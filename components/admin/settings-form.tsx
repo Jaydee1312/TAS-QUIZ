@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, CheckCircle2, Target, Trophy } from "lucide-react";
+import { Loader2, Save, CheckCircle2, Target, Trophy, Medal, Crown } from "lucide-react";
 import type { PointsConfig } from "@/lib/settings";
 
 export function SettingsForm({ initial }: { initial: PointsConfig }) {
@@ -15,6 +15,9 @@ export function SettingsForm({ initial }: { initial: PointsConfig }) {
   const [completion, setCompletion] = React.useState(String(initial.completion));
   const [highScore, setHighScore] = React.useState(String(initial.highScore));
   const [topRank, setTopRank] = React.useState(String(initial.topRank));
+  const [rankTop1, setRankTop1] = React.useState(String(initial.rankTop1));
+  const [rankTop3, setRankTop3] = React.useState(String(initial.rankTop3));
+  const [rankTop5, setRankTop5] = React.useState(String(initial.rankTop5));
   const [saving, setSaving] = React.useState(false);
 
   async function save(e: React.FormEvent) {
@@ -28,6 +31,9 @@ export function SettingsForm({ initial }: { initial: PointsConfig }) {
           points_completion: Number(completion),
           points_high_score: Number(highScore),
           points_top_rank: Number(topRank),
+          points_rank_top1: Number(rankTop1),
+          points_rank_top3: Number(rankTop3),
+          points_rank_top5: Number(rankTop5),
         }),
       });
       const data = await res.json();
@@ -64,11 +70,42 @@ export function SettingsForm({ initial }: { initial: PointsConfig }) {
           />
           <Field
             icon={<Trophy className="h-5 w-5 text-primary" />}
-            label="Lọt top"
-            desc="Cộng khi lọt top N của bài; bị đẩy ra khỏi top sẽ bị trừ đúng số này."
+            label="Trong Top N của bài"
+            desc="Cộng khi lọt vào top N (số N cấu hình ở từng bài). Rời top sẽ bị trừ lại."
             value={topRank}
             onChange={setTopRank}
           />
+
+          <div className="rounded-xl border border-hairline p-4">
+            <p className="text-[14px] font-medium">Thưởng thêm theo hạng cao</p>
+            <p className="mb-3 text-[12px] text-muted-foreground">
+              Để 0 = tắt. Mỗi người nhận mức <strong>cao nhất</strong> mà hạng
+              của họ đạt được (không cộng dồn).
+            </p>
+            <div className="space-y-3">
+              <Field
+                icon={<Crown className="h-5 w-5 text-amber-500" />}
+                label="Hạng 1"
+                desc="Người đứng đầu bảng."
+                value={rankTop1}
+                onChange={setRankTop1}
+              />
+              <Field
+                icon={<Medal className="h-5 w-5 text-zinc-500" />}
+                label="Trong Top 3"
+                desc="Hạng 1–3."
+                value={rankTop3}
+                onChange={setRankTop3}
+              />
+              <Field
+                icon={<Medal className="h-5 w-5 text-amber-700" />}
+                label="Trong Top 5"
+                desc="Hạng 1–5."
+                value={rankTop5}
+                onChange={setRankTop5}
+              />
+            </div>
+          </div>
 
           <div className="flex justify-end">
             <Button type="submit" disabled={saving} className="gap-2">

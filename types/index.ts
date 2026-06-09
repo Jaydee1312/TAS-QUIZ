@@ -40,13 +40,16 @@ export interface Quiz {
   updated_at: string;
 }
 
+export type QuestionType = "single" | "multiple";
+
 export interface Question {
   id: string;
   quiz_id: string;
   content: string;
   order_index: number;
   options: QuizOption[];
-  correct_answer: string;
+  correct_answer: string; // single: "B"; multiple: "A,C"
+  question_type: QuestionType;
   explanation: string | null;
   created_at: string;
 }

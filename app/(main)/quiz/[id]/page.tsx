@@ -83,7 +83,7 @@ export default async function QuizPage({
   // Lấy câu hỏi — KHÔNG select correct_answer / explanation để tránh lộ đáp án.
   const { data: questions } = await supabase
     .from("questions")
-    .select("id, quiz_id, content, order_index, options, created_at")
+    .select("id, quiz_id, content, order_index, options, question_type, created_at")
     .eq("quiz_id", params.id)
     .order("order_index", { ascending: true });
 
@@ -105,6 +105,7 @@ export default async function QuizPage({
     content: qrow.content,
     order_index: qrow.order_index,
     options: qrow.options as unknown as QuizOption[],
+    question_type: qrow.question_type === "multiple" ? "multiple" : "single",
     created_at: qrow.created_at,
   }));
 

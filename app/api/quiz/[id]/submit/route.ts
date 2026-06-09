@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { computeBasePoints, shouldAwardPoints } from "@/lib/points";
 import { reconcileTopRanks } from "@/lib/ranking";
 import { getPointsConfig } from "@/lib/settings";
+import { answersMatch } from "@/lib/utils";
 import type { Quiz } from "@/types";
 
 export async function POST(
@@ -78,7 +79,7 @@ export async function POST(
   const total = questions.length;
   let score = 0;
   for (const qq of questions) {
-    if (answers[qq.id] && answers[qq.id] === qq.correct_answer) score += 1;
+    if (answersMatch(qq.correct_answer, answers[qq.id])) score += 1;
   }
   const percentage = Math.round((score / total) * 10000) / 100; // 2 chữ số thập phân
 
@@ -129,18 +130,19 @@ export async function POST(
     } as never);
   }
 
-  // 10. Đối chiếu top N realtime (cộng/trừ top_rank cho mọi user bị ảnh hưởng).
-  const change = await reconcileTopRanks(service, quizId, quiz.top_n_for_bonus, {
+  // 10. Đối chiếu thưởng theo hạng realtime (cộng/trừ cho mọi user bị ảnh hưởng).
+  const deltas = await reconcileTopRanks(service, quizId, quiz.top_n_for_bonus, {
     currentUserId: user.id,
     currentSubmissionId: submission.id,
-    pointsPerTop: pointsConfig.topRank,
+    config: pointsConfig,
   });
 
-  // 11. Nếu user hiện tại vừa lọt top → cộng vào points_earned của submission.
+  // 11. Nếu user hiện tại vừa được thưởng theo hạng → cộng vào points_earned.
+  const myDelta = deltas.get(user.id) ?? 0;
   let finalPoints = base.total;
-  const gainedTop = change.gained.includes(user.id);
+  const gainedTop = myDelta > 0;
   if (gainedTop) {
-    finalPoints += pointsConfig.topRank;
+    finalPoints += myDelta;
     await service
       .from("submissions")
       .update({ points_earned: finalPoints })

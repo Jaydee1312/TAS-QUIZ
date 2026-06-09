@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { parseAnswerKeys } from "@/lib/utils";
 import type { ImportQuiz } from "@/lib/quiz-import";
 
 // POST /api/admin/quiz/import — tạo hàng loạt bài từ dữ liệu Excel đã parse.
@@ -27,13 +28,16 @@ export async function POST(request: Request) {
       });
       continue;
     }
-    const invalid = item.questions.some(
-      (q) =>
+    const invalid = item.questions.some((q) => {
+      const keys = parseAnswerKeys(q.correct_answer);
+      return (
         !q.content?.trim() ||
         !Array.isArray(q.options) ||
         q.options.length < 2 ||
-        !q.options.some((o) => o.key === q.correct_answer)
-    );
+        keys.length === 0 ||
+        keys.some((k) => !q.options.some((o) => o.key === k))
+      );
+    });
     if (invalid) {
       failed.push({ title: item.quiz.title, error: "Câu hỏi không hợp lệ" });
       continue;
@@ -67,7 +71,8 @@ export async function POST(request: Request) {
       content: q.content.trim(),
       order_index: i,
       options: q.options as unknown as object,
-      correct_answer: q.correct_answer,
+      correct_answer: parseAnswerKeys(q.correct_answer).join(","),
+      question_type: q.question_type === "multiple" ? "multiple" : "single",
       explanation: q.explanation ?? null,
     }));
     const { error: qErr } = await service.from("questions").insert(rows);

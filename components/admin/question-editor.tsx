@@ -6,15 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Trash2, Plus, GripVertical } from "lucide-react";
-import type { QuizOption } from "@/types";
+import { Switch } from "@/components/ui/switch";
+import { Trash2, Plus, GripVertical, Check } from "lucide-react";
+import { cn, parseAnswerKeys } from "@/lib/utils";
+import type { QuizOption, QuestionType } from "@/types";
 
 export interface QuestionDraft {
   key: string; // key nội bộ React (không phải option key)
   content: string;
   options: QuizOption[];
-  correct_answer: string;
+  correct_answer: string; // single: "B"; multiple: "A,C"
+  question_type: QuestionType;
   explanation: string;
 }
 
@@ -35,8 +37,39 @@ export function QuestionEditor({
   onRemove,
   canRemove,
 }: QuestionEditorProps) {
+  const isMultiple = question.question_type === "multiple";
+  const correctKeys = parseAnswerKeys(question.correct_answer);
+
   function update(patch: Partial<QuestionDraft>) {
     onChange({ ...question, ...patch });
+  }
+
+  function setCorrect(keys: string[]) {
+    const sorted = [...new Set(keys)].sort();
+    update({ correct_answer: sorted.join(",") });
+  }
+
+  function toggleType(multiple: boolean) {
+    if (multiple) {
+      update({ question_type: "multiple" });
+    } else {
+      // Về single: chỉ giữ 1 đáp án đúng đầu tiên.
+      update({
+        question_type: "single",
+        correct_answer: correctKeys[0] ?? "",
+      });
+    }
+  }
+
+  function pickSingle(key: string) {
+    update({ correct_answer: key });
+  }
+
+  function toggleMulti(key: string) {
+    const set = new Set(correctKeys);
+    if (set.has(key)) set.delete(key);
+    else set.add(key);
+    setCorrect([...set]);
   }
 
   function updateOption(i: number, text: string) {
@@ -54,22 +87,18 @@ export function QuestionEditor({
 
   function removeOption(i: number) {
     if (question.options.length <= 2) return;
-    // Bỏ option và đánh lại key A,B,C...
-    const options = question.options
-      .filter((_, idx) => idx !== i)
-      .map((o, idx) => ({ key: LETTERS[idx], text: o.text }));
-    const removedKey = question.options[i].key;
-    const correct =
-      question.correct_answer === removedKey
-        ? ""
-        : // map lại correct nếu key dịch chuyển
-          options.find(
-            (o) =>
-              o.text ===
-              question.options.find((x) => x.key === question.correct_answer)
-                ?.text
-          )?.key ?? "";
-    update({ options, correct_answer: correct });
+    const survivors = question.options.filter((_, idx) => idx !== i);
+    // old key → new key (đánh lại A,B,C... theo vị trí mới)
+    const remap = new Map<string, string>();
+    survivors.forEach((o, idx) => remap.set(o.key, LETTERS[idx]));
+    const newOptions = survivors.map((o, idx) => ({
+      key: LETTERS[idx],
+      text: o.text,
+    }));
+    const newCorrect = correctKeys
+      .map((k) => remap.get(k))
+      .filter((k): k is string => Boolean(k));
+    update({ options: newOptions, correct_answer: newCorrect.join(",") });
   }
 
   return (
@@ -100,35 +129,68 @@ export function QuestionEditor({
           />
         </div>
 
+        <div className="flex items-center justify-between rounded-xl border border-hairline px-4 py-2.5">
+          <div>
+            <p className="text-[14px] font-medium">Cho phép chọn nhiều đáp án</p>
+            <p className="text-[12px] text-muted-foreground">
+              Bật nếu câu này có nhiều đáp án đúng (chấm đúng khi chọn đủ & đúng
+              tất cả).
+            </p>
+          </div>
+          <Switch checked={isMultiple} onCheckedChange={toggleType} />
+        </div>
+
         <div className="space-y-2">
-          <Label>Lựa chọn (chọn radio = đáp án đúng)</Label>
-          <RadioGroup
-            value={question.correct_answer}
-            onValueChange={(v) => update({ correct_answer: v })}
-            className="gap-2"
-          >
-            {question.options.map((opt, i) => (
-              <div key={opt.key} className="flex items-center gap-3">
-                <RadioGroupItem value={opt.key} id={`${question.key}-${opt.key}`} />
-                <span className="w-5 font-semibold text-primary">{opt.key}</span>
-                <Input
-                  value={opt.text}
-                  onChange={(e) => updateOption(i, e.target.value)}
-                  placeholder={`Lựa chọn ${opt.key}`}
-                />
-                {question.options.length > 2 && (
-                  <Button
+          <Label>
+            Lựa chọn —{" "}
+            {isMultiple ? "tích các đáp án đúng" : "chọn 1 đáp án đúng"}
+          </Label>
+          <div className="grid gap-2">
+            {question.options.map((opt, i) => {
+              const checked = correctKeys.includes(opt.key);
+              return (
+                <div key={opt.key} className="flex items-center gap-3">
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOption(i)}
+                    onClick={() =>
+                      isMultiple ? toggleMulti(opt.key) : pickSingle(opt.key)
+                    }
+                    aria-label={`Đáp án đúng ${opt.key}`}
+                    className={cn(
+                      "flex h-5 w-5 shrink-0 items-center justify-center border border-input transition-colors",
+                      isMultiple ? "rounded-[5px]" : "rounded-full",
+                      checked
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "bg-background"
+                    )}
                   >
-                    <Trash2 className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </RadioGroup>
+                    {checked &&
+                      (isMultiple ? (
+                        <Check className="h-3.5 w-3.5" />
+                      ) : (
+                        <span className="h-2 w-2 rounded-full bg-current" />
+                      ))}
+                  </button>
+                  <span className="w-5 font-semibold text-primary">{opt.key}</span>
+                  <Input
+                    value={opt.text}
+                    onChange={(e) => updateOption(i, e.target.value)}
+                    placeholder={`Lựa chọn ${opt.key}`}
+                  />
+                  {question.options.length > 2 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeOption(i)}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
           {question.options.length < LETTERS.length && (
             <Button
               type="button"

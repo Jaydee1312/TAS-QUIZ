@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
-import type { QuizOption } from "@/types";
+import { parseAnswerKeys } from "@/lib/utils";
+import type { QuizOption, QuestionType } from "@/types";
 
 interface QuestionInput {
   content: string;
   options: QuizOption[];
   correct_answer: string;
+  question_type?: QuestionType;
   explanation?: string | null;
 }
 
@@ -33,7 +35,11 @@ function validate(quiz: QuizInput, questions: QuestionInput[]): string | null {
       return `Câu ${i + 1}: cần ít nhất 2 lựa chọn`;
     if (q.options.some((o) => !o.key?.trim() || !o.text?.trim()))
       return `Câu ${i + 1}: lựa chọn không được để trống`;
-    if (!q.options.some((o) => o.key === q.correct_answer))
+    const keys = parseAnswerKeys(q.correct_answer);
+    if (keys.length === 0) return `Câu ${i + 1}: chưa chọn đáp án đúng`;
+    if (q.question_type !== "multiple" && keys.length > 1)
+      return `Câu ${i + 1}: câu 1 đáp án nhưng có nhiều đáp án đúng`;
+    if (keys.some((k) => !q.options.some((o) => o.key === k)))
       return `Câu ${i + 1}: đáp án đúng không khớp lựa chọn nào`;
   }
   return null;
@@ -82,7 +88,8 @@ export async function POST(request: Request) {
     content: q.content.trim(),
     order_index: i,
     options: q.options as unknown as object,
-    correct_answer: q.correct_answer,
+    correct_answer: parseAnswerKeys(q.correct_answer).join(","),
+    question_type: q.question_type === "multiple" ? "multiple" : "single",
     explanation: q.explanation ?? null,
   }));
   const { error: qErr } = await service.from("questions").insert(rows);
