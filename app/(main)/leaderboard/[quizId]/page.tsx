@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUser, getAdminEmails, isSuperAdmin } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { getLeaderboard } from "@/lib/ranking";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { Button } from "@/components/ui/button";
@@ -29,25 +29,8 @@ export default async function QuizLeaderboardPage({
 
   const rows = await getLeaderboard(supabase, params.quizId, quiz.top_n_for_bonus);
 
-  // Thông tin phân quyền xóa (chỉ admin mới thấy nút xóa).
+  // Chỉ admin / super admin thấy nút xóa (không tự xóa mình — xử lý trong table).
   const viewerIsAdmin = user.role === "admin";
-  const viewerIsSuper = isSuperAdmin(user.email);
-  let adminUserIds: string[] = [];
-  let superUserIds: string[] = [];
-  if (viewerIsAdmin && rows.length > 0) {
-    const ids = rows.map((r) => r.user_id);
-    const { data: roleRows } = await supabase
-      .from("users")
-      .select("id, email, role")
-      .in("id", ids);
-    const superEmails = getAdminEmails();
-    adminUserIds = (roleRows ?? [])
-      .filter((u) => u.role === "admin")
-      .map((u) => u.id);
-    superUserIds = (roleRows ?? [])
-      .filter((u) => superEmails.includes(u.email.toLowerCase()))
-      .map((u) => u.id);
-  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -78,9 +61,6 @@ export default async function QuizLeaderboardPage({
         currentUserId={user.id}
         limit={quiz.top_n_for_bonus}
         viewerIsAdmin={viewerIsAdmin}
-        viewerIsSuper={viewerIsSuper}
-        adminUserIds={adminUserIds}
-        superUserIds={superUserIds}
       />
     </div>
   );

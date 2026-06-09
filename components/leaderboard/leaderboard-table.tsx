@@ -23,9 +23,6 @@ interface LeaderboardTableProps {
   currentUserId: string;
   limit?: number;
   viewerIsAdmin?: boolean;
-  viewerIsSuper?: boolean;
-  adminUserIds?: string[];
-  superUserIds?: string[];
 }
 
 export function LeaderboardTable({
@@ -34,23 +31,14 @@ export function LeaderboardTable({
   currentUserId,
   limit = 10,
   viewerIsAdmin = false,
-  viewerIsSuper = false,
-  adminUserIds = [],
-  superUserIds = [],
 }: LeaderboardTableProps) {
   const [rows, setRows] = React.useState<LeaderboardRow[]>(initialRows);
   const [target, setTarget] = React.useState<LeaderboardRow | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  const adminSet = React.useMemo(() => new Set(adminUserIds), [adminUserIds]);
-  const superSet = React.useMemo(() => new Set(superUserIds), [superUserIds]);
-
+  // Admin / super admin xóa được mọi người, trừ chính mình. User không có nút.
   function canDelete(row: LeaderboardRow): boolean {
-    if (!viewerIsAdmin) return false;
-    if (row.user_id === currentUserId) return false; // không tự xóa mình
-    if (superSet.has(row.user_id)) return false; // không xóa super admin
-    if (adminSet.has(row.user_id)) return viewerIsSuper; // admin: chỉ super xóa
-    return true; // user thường: admin nào cũng xóa được
+    return viewerIsAdmin && row.user_id !== currentUserId;
   }
 
   async function confirmDelete() {
